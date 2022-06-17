@@ -1,0 +1,37 @@
+# @package _global_
+hydra:
+  launcher:
+    cpus_per_task: 10
+    gpus_per_node: 8
+    tasks_per_node: ${hydra.launcher.gpus_per_node}
+    nodes: 4
+    comment: null
+    mem_gb: 450
+    timeout_min: 4320
+    max_num_timeout: 100
+    constraint: volta32gb
+    partition: devlab,learnlab,learnfair,scavenge
+    name: ${hydra.job.config_name}/${hydra.job.override_dirname}
+    submitit_folder: ${hydra.sweep.dir}/submitit/%j
+  sweep:
+    dir: /checkpoint/${env:USER}/${env:PREFIX}/${hydra.job.config_name}/${hydra.job.override_dirname}
+    subdir: ''
+  job:
+    config:
+      override_dirname:
+        kv_sep: '_'
+        item_sep: '/'
+        exclude_keys:
+          - distributed_training.distributed_port
+          - distributed_training.distributed_world_size
+          - task.data
+          - task.label_dir
+          - task.tokenizer_bpe_model
+          - model.label_rate
+          - common.user_dir
+          - run
+          - next_script
+
+distributed_training:
+  distributed_world_size: 32
+  distributed_port: 29671

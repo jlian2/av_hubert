@@ -25,9 +25,9 @@ distributed_training:
 task:
   _name: av_hubert_pretraining
   is_s2s: true
-  data: ???
-  label_dir: ???
-  tokenizer_bpe_model: ???
+  data: /checkpoint/wnhsu/data/avhubert_manifest/finetune_30h//
+  label_dir: /checkpoint/wnhsu/data/avhubert_manifest/finetune_30h//
+  tokenizer_bpe_model: /checkpoint/wnhsu/data/avhubert_manifest/finetune_30h//spm_unigram1000.model
   normalize: true  # must be consistent with pre-training
   labels: ["wrd"]
   single_target: true

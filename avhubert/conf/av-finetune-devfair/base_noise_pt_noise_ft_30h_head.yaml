@@ -25,9 +25,9 @@ distributed_training:
 task:
   _name: av_hubert_pretraining
   is_s2s: true
-  data: /checkpoint/wnhsu/data/avhubert_manifest/finetune_433h//
-  label_dir: /checkpoint/wnhsu/data/avhubert_manifest/finetune_433h//
-  tokenizer_bpe_model: /checkpoint/wnhsu/data/avhubert_manifest/finetune_30h//spm_unigram1000.model
+  data: /checkpoint/wnhsu/data/avhubert_manifest/finetune_30h_head/
+  label_dir: /checkpoint/wnhsu/data/avhubert_manifest/finetune_30h_head/
+  tokenizer_bpe_model: /checkpoint/wnhsu/data/avhubert_manifest/finetune_30h_head/spm_unigram1000.model
   normalize: true  # must be consistent with pre-training
   labels: ["wrd"]
   single_target: true
@@ -35,10 +35,13 @@ task:
   stack_order_audio: 4
   tokenizer_bpe_name: sentencepiece
   max_sample_size: 500
-  modalities: ["video"]
+  modalities: ["video","audio"]
   image_aug: true
   pad_audio: true
   random_crop: false
+  noise_prob: 0.25
+  noise_snr: 0
+  noise_wav: /checkpoint/wnhsu/data/avhubert_manifest/musan/all-for-training//
 
 dataset:
   num_workers: 6
@@ -54,7 +57,7 @@ criterion:
   label_smoothing: 0.1
 
 optimization:
-  max_update: 120000
+  max_update: 30000
   lr: [0.001]
   sentence_avg: true
   update_freq: [1]
@@ -66,9 +69,9 @@ optimizer:
 
 lr_scheduler:
   _name: tri_stage
-  warmup_steps: 40000
+  warmup_steps: 10000
   hold_steps: 0
-  decay_steps: 80000
+  decay_steps: 20000
   final_lr_scale: 0.05
 
 model:
@@ -76,9 +79,7 @@ model:
   w2v_path: ???
   apply_mask: false
   mask_selection: static
-  mask_length: 10
   mask_other: 0
-  mask_prob: 0.75
   mask_channel_selection: static
   mask_channel_length: 64
   mask_channel_other: 0
@@ -92,7 +93,7 @@ model:
   decoder_dropout: 0.1
   decoder_attention_dropout: 0.0
   decoder_activation_dropout: 0.1
-  freeze_finetune_updates: 60000
+  freeze_finetune_updates: 24000
   share_decoder_input_output_embed: true
   decoder_normalize_before: true
 

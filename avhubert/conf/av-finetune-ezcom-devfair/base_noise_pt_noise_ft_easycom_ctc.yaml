@@ -9,11 +9,12 @@ common:
   user_dir: ???
 
 checkpoint:
-  save_interval: 2
+  save_interval: 1000000
+  save_interval_updates: 2000
   keep_interval_updates: 1
   no_epoch_checkpoints: true
-  best_checkpoint_metric: accuracy
-  maximize_best_checkpoint_metric: true
+  best_checkpoint_metric: wer
+  maximize_best_checkpoint_metric: false
 
 distributed_training:
   ddp_backend: c10d
@@ -24,38 +25,39 @@ distributed_training:
 
 task:
   _name: av_hubert_pretraining
-  is_s2s: true
-  data: /checkpoint/wnhsu/data/avhubert_manifest/finetune_433h//
-  label_dir: /checkpoint/wnhsu/data/avhubert_manifest/finetune_433h//
-  tokenizer_bpe_model: /checkpoint/wnhsu/data/avhubert_manifest/finetune_30h//spm_unigram1000.model
+  is_s2s: false
+  data: /checkpoint/wnhsu/data/easycom/processed/manifest
+  label_dir: /checkpoint/wnhsu/data/easycom/processed/manifest
   normalize: true  # must be consistent with pre-training
-  labels: ["wrd"]
+  labels: ["ltr"]
   single_target: true
   fine_tuning: true
   stack_order_audio: 4
-  tokenizer_bpe_name: sentencepiece
   max_sample_size: 500
-  modalities: ["video"]
+  modalities: ["video","audio"]
   image_aug: true
   pad_audio: true
   random_crop: false
+  noise_prob: 0.25
+  noise_snr: 0
+  noise_wav: /checkpoint/wnhsu/data/avhubert_manifest/musan/all-for-training
 
 dataset:
   num_workers: 6
   max_tokens: 1000
   validate_after_updates: 0
-  validate_interval: 2
+  validate_interval: 1000000
+  validate_interval_updates: 2000
   train_subset: train
   valid_subset: valid
 
 criterion:
-  _name: label_smoothed_cross_entropy
-  report_accuracy: true
-  label_smoothing: 0.1
+  _name: ctc
+  zero_infinity: true
 
 optimization:
-  max_update: 120000
-  lr: [0.001]
+  max_update: 30000
+  lr: [0.0005]
   sentence_avg: true
   update_freq: [1]
 
@@ -66,19 +68,17 @@ optimizer:
 
 lr_scheduler:
   _name: tri_stage
-  warmup_steps: 40000
-  hold_steps: 0
-  decay_steps: 80000
+  phase_ratio: [0.33,0,0.67]
   final_lr_scale: 0.05
 
 model:
-  _name: av_hubert_seq2seq
+  _name: av_hubert_ctc
   w2v_path: ???
   apply_mask: false
   mask_selection: static
-  mask_length: 10
+  # mask_length: 10
   mask_other: 0
-  mask_prob: 0.75
+  # mask_prob: 0.75
   mask_channel_selection: static
   mask_channel_length: 64
   mask_channel_other: 0
@@ -88,13 +88,7 @@ model:
   activation_dropout: 0.1
   attention_dropout: 0.0
   feature_grad_mult: 1.0
-  decoder_layers: 6
-  decoder_dropout: 0.1
-  decoder_attention_dropout: 0.0
-  decoder_activation_dropout: 0.1
-  freeze_finetune_updates: 60000
-  share_decoder_input_output_embed: true
-  decoder_normalize_before: true
+  freeze_finetune_updates: 24000
 
 hydra:
   job:

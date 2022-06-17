@@ -18,16 +18,16 @@ checkpoint:
 distributed_training:
   ddp_backend: c10d
   find_unused_parameters: true
-  distributed_world_size: 8
+  distributed_world_size: 32
   distributed_port: 29671
   nprocs_per_node: 8
 
 task:
   _name: av_hubert_pretraining
   is_s2s: true
-  data: /checkpoint/wnhsu/data/avhubert_manifest/finetune_433h//
-  label_dir: /checkpoint/wnhsu/data/avhubert_manifest/finetune_433h//
-  tokenizer_bpe_model: /checkpoint/wnhsu/data/avhubert_manifest/finetune_30h//spm_unigram1000.model
+  data: /checkpoint/wnhsu/data/avhubert_manifest/others/vox-en-self-433h/
+  label_dir: /checkpoint/wnhsu/data/avhubert_manifest/others/vox-en-self-433h/
+  tokenizer_bpe_model: /checkpoint/wnhsu/data/avhubert_manifest/others/vox-en-self-433h/spm_unigram1000.model
   normalize: true  # must be consistent with pre-training
   labels: ["wrd"]
   single_target: true
@@ -54,7 +54,7 @@ criterion:
   label_smoothing: 0.1
 
 optimization:
-  max_update: 120000
+  max_update: 100000
   lr: [0.001]
   sentence_avg: true
   update_freq: [1]
@@ -66,9 +66,9 @@ optimizer:
 
 lr_scheduler:
   _name: tri_stage
-  warmup_steps: 40000
+  warmup_steps: 10000
   hold_steps: 0
-  decay_steps: 80000
+  decay_steps: 90000
   final_lr_scale: 0.05
 
 model:
@@ -88,13 +88,16 @@ model:
   activation_dropout: 0.1
   attention_dropout: 0.0
   feature_grad_mult: 1.0
-  decoder_layers: 6
+  decoder_layers: 9
   decoder_dropout: 0.1
   decoder_attention_dropout: 0.0
   decoder_activation_dropout: 0.1
-  freeze_finetune_updates: 60000
+  freeze_finetune_updates: 80000
   share_decoder_input_output_embed: true
   decoder_normalize_before: true
+  decoder_embed_dim: 1024
+  decoder_ffn_embed_dim: 4096
+  decoder_attention_heads: 8
 
 hydra:
   job:
@@ -103,14 +106,17 @@ hydra:
         kv_sep: '-'
         item_sep: '__'
         exclude_keys:
-          - run
+          - common.user_dir
           - task.data
           - task.label_dir
+          - task.tokenizer_bpe_model
           - model.w2v_path
           - dataset.train_subset
           - dataset.valid_subset
           - criterion.wer_kenlm_model
           - criterion.wer_lexicon
+          - distributed_training.distributed_port
+          - distributed_training.distributed_world_size
   run:
     dir: ???
   sweep:
