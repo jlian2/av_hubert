@@ -1,0 +1,5 @@
+- dataset.gen_subset=test
+- common_eval.path=/checkpoint/jiachenlian/avhubert0614_ft_433_num_workers0_400k_again/pt_LRS_B_433h_ftmd/r1/base_lrs3_433h/+lr_scheduler_fixed/dataset.num_workers_0/dir/checkpoints/checkpoint_best.pt
+- common_eval.results_path=/checkpoint/jiachenlian/avhubert0614_ft_433_num_workers0_400k_again/pt_LRS_B_433h_ftmd/r1/base_lrs3_433h/+lr_scheduler_fixed/dataset.num_workers_0/dir/decode_results
+- common.user_dir=/private/home/jiachenlian/av_hubert/avhubert
+- override.modalities=[video]
